@@ -1,0 +1,20 @@
+<md-fab-toolbar md-open="menu.isOpen" md-direction="right">
+    <md-fab-trigger class="align-with-text">
+        <md-button class="md-fab md-primary">
+            <md-icon>menu</md-icon>
+        </md-button>
+    </md-fab-trigger>
+    <md-toolbar>
+        <md-fab-actions class="md-toolbar-tools">
+            <div ng-repeat="menuItem in baseData.menus">
+                <md-button ng-click="actions(menuItem.target, $event)">
+                    <md-icon ng-if="menuItem.icon"><span ng-bind="menuItem.icon"></span></md-icon>
+                    <span ng-bind="menuItem.name"></span>
+                </md-button>
+            </div>
+            <div ng-if="!baseData.menus.length">
+                <span ng-bind="baseData.errorTitle"></span>
+            </div>
+        </md-fab-actions>
+    </md-toolbar>
+</md-fab-toolbar>

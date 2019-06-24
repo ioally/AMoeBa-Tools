@@ -1,0 +1,66 @@
+<div class="mdl-grid">
+    <div class="mdl-cell mdl-shadow--2dp  mdl-cell--middle"
+         ng-class="pageStyle.pageOffset"
+         style="min-width:1046px">
+        <md-progress-linear md-mode="indeterminate" ng-disabled="determinateDis"></md-progress-linear>
+        <md-content class="mdl-log-card">
+            <md-list>
+                <md-subheader class="md-no-sticky" style="text-align: center;">
+                    <md-datepicker ng-disabled="!determinateDis" md-min-date="queryInfo.startDateMin"
+                                   md-max-date="queryInfo.startDateMax" ng-model="queryInfo.startDate">
+                        <md-tooltip>开始时间</md-tooltip>
+                    </md-datepicker>
+                    <md-datepicker ng-disabled="!determinateDis" md-min-date="queryInfo.endDateMin"
+                                   md-max-date="queryInfo.endDateMax" ng-model="queryInfo.endDate">
+                        <md-tooltip>结束时间</md-tooltip>
+                    </md-datepicker>
+                    <md-button ng-disabled="!determinateDis" ng-click="queryLog()">
+                        <md-icon style="font-size:24px">search</md-icon>
+                        <span>查询</span>
+                    </md-button>
+                </md-subheader>
+                <md-list-item class="md-3-line" ng-repeat="item in logContentAm" ng-click="selectLog(item)"
+                              ng-onhold="longClick(item)">
+                    <md-icon md-colors="{color: 'yellow-700'}">brightness_5</md-icon>
+                    <div class="md-list-item-text" layout="column">
+                        <span style="font-size: 14px;" ng-bind="item.dateRange"></span>
+                        <h3 md-colors="{color: 'yellow-800'}" ng-bind="item.text"></h3>
+                        <p ng-bind="item.id"></p>
+                    </div>
+                    <md-icon ng-if="item.switch" class="md-primary">check_box</md-icon>
+                    <md-icon ng-if="!item.switch">check_box_outline_blank</md-icon>
+                </md-list-item>
+            </md-list>
+        </md-content>
+        <md-content class="mdl-log-card">
+            <md-list>
+                <md-subheader style="text-align: end;">
+                    <md-icon ng-if="logContentAm.length+logContentPm.length>0" style="font-size:24px">donut_small
+                    </md-icon>
+                    <span ng-if="logContentAm.length+logContentPm.length>0"
+                          ng-bind="'共计：'+(logContentAm.length+logContentPm.length)+'条'">
+                    </span>
+                    <md-button ng-disabled="!determinateDis" ng-click="selectAll()" ng-class="stylePage.selectAll">
+                        <md-icon style="font-size:24px">select_all</md-icon>
+                        <span>全部选择</span>
+                    </md-button>
+                    <md-button ng-disabled="!determinateDis" ng-click="batchDelete()">
+                        <md-icon style="font-size:24px">delete_sweep</md-icon>
+                        <span>删除已经选择项</span>
+                    </md-button>
+                </md-subheader>
+                <md-list-item class="md-3-line" ng-repeat="item in logContentPm" ng-click="selectLog(item)"
+                              ng-onhold="longClick(item)">
+                    <md-icon md-colors="{color: 'blue-500'}">brightness_4</md-icon>
+                    <div class="md-list-item-text" layout="column">
+                        <span style="font-size: 14px;" ng-bind="item.dateRange"></span>
+                        <h3 md-colors="{color: 'blue-500'}" ng-bind="item.text"></h3>
+                        <p ng-bind="item.id"></p>
+                    </div>
+                    <md-icon ng-if="item.switch" class="md-primary">check_box</md-icon>
+                    <md-icon ng-if="!item.switch">check_box_outline_blank</md-icon>
+                </md-list-item>
+            </md-list>
+        </md-content>
+    </div>
+</div>

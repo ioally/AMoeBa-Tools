@@ -1,0 +1,57 @@
+<div class="mdl-grid">
+    <div class="mdl-cell mdl-shadow--2dp  mdl-cell--middle" style="min-width:942px"
+         ng-class="pageStyle.pageOffset">
+        <md-content class="md-content-text">
+            <h4 md-colors="{color: 'indigo'}">问 题 反 馈</h4>
+            <br><br>
+            <form name="feedbackForm">
+                <md-input-container class="md-block">
+                    <label>怎么称呼你</label>
+                    <input required name="userName" ng-model="feedbackDto.createBy" md-maxlength="20">
+                    <div ng-messages="feedbackForm.userName.$error" role="alert">
+                        <div ng-message="required">
+                            你的称呼不能为空！
+                        </div>
+                        <div ng-message="md-maxlength">
+                            你的称呼最多填写20个字符！
+                        </div>
+                    </div>
+                </md-input-container>
+                <br>
+                <md-input-container class="md-block">
+                    <label>邮箱</label>
+                    <input required type="email" name="email" ng-model="feedbackDto.email"
+                           md-maxlength="100" ng-pattern="/^.+@.+\..+$/"/>
+                    <div ng-messages="feedbackForm.email.$error" role="alert">
+                        <div ng-message="pattern">
+                            你输入的邮箱地址不正确！
+                        </div>
+                        <div ng-message="required">
+                            邮箱地址不能为空！
+                        </div>
+                        <div ng-message="md-maxlength">
+                            邮箱地址最多只能输入100个字符！
+                        </div>
+                    </div>
+                </md-input-container>
+                <br>
+                <md-input-container class="md-block">
+                    <label>反馈内容</label>
+                    <textarea required name="content" ng-model="feedbackDto.content" md-maxlength="300" rows="5"
+                              md-select-on-focus></textarea>
+                    <div ng-messages="feedbackForm.content.$error" role="alert">
+                        <div ng-message="required">
+                            反馈内容不能为空！
+                        </div>
+                        <div ng-message="md-maxlength">
+                            反馈内容最多只能填写300个字符！
+                        </div>
+                    </div>
+                </md-input-container>
+            </form>
+            <br>
+            <br>
+            <md-button style="left: 780px" class="md-raised md-primary" ng-click="submit($event)">提交反馈</md-button>
+        </md-content>
+    </div>
+</div>

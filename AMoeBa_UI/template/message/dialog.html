@@ -1,0 +1,34 @@
+<md-dialog>
+    <md-progress-linear md-mode="indeterminate" ng-disabled="determinateDis"
+                        ng-if="showProgressLinear"></md-progress-linear>
+    <form ng-cloak>
+        <md-toolbar ng-if="showHead">
+            <div class="md-toolbar-tools">
+                <h1 flex md-truncate>
+                    <span ng-bind="title"></span>
+                </h1>
+                <div class="mdl-layout-spacer"></div>
+                <md-button ng-if="showHead" class="md-icon-button" ng-click="close()">
+                    <i class="material-icons">close</i>
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-dialog-content>
+            <div class="md-dialog-content">
+                <h5>
+                    <span ng-bind-html="content"></span>
+                </h5>
+            </div>
+        </md-dialog-content>
+
+        <md-dialog-actions layout="row">
+            <md-button ng-if="cancelButton" ng-click="closeDialog(cancelButton.callback)"
+                       class="mdl-color-text--accent">
+                <span ng-bind="cancelButton.text"></span>
+            </md-button>
+            <md-button ng-if="okButton" ng-click="success(okButton.callback)">
+                <span ng-bind="okButton.text"></span>
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

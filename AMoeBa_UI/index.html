@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head id="head">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>AMoeBa Tools</title>
+    <link rel="icon" href="img/favicon-b.png" type="image/x-icon" />
+    <link rel="stylesheet" href="css/material.min.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/mdl-icon.css">
+    <link rel="stylesheet" href="css/material-design-roboto-font.css">
+    <link rel="stylesheet" href="css/angular-material.min.css">
+    <link rel="stylesheet" href="css/md-time-picker.css">
+    <script>
+        (function () {
+            window.CHERRY = {
+                version: new Date().getTime(),
+            };
+        })();
+    </script>
+</head>
+<body id="myApp" ng-controller="mainCtrl">
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <div ng-include="'template/menu.tpl.html'"></div>
+    <main ui-view="main"></main>
+</div>
+<script>
+    (function () {
+        let script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = "js/lib/require/require.min.js";
+        script.setAttribute('data-main', 'js/main.js?v=' + window.CHERRY.version);
+        document.getElementById('head').appendChild(script);
+    })();
+</script>
+</body>
+</html>

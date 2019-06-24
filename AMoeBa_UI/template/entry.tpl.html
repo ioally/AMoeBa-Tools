@@ -1,0 +1,141 @@
+<div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--middle" style="min-width:942px" ng-class="pageStyle.pageOffset">
+        <div style="font-size:20px; min-width:1046px; text-align:center">
+            <span ng-bind="userInfo.userEmployeeName"><md-tooltip>这是你的名字和工号啊，你失忆了吗</md-tooltip></span>
+            <span ng-if="userInfo.userEmployeeId">&nbsp;&nbsp;&nbsp;阿米巴id：</span>
+            <span ng-bind="userInfo.userEmployeeId"><md-tooltip>不知道这是啥就不要乱点，好吗</md-tooltip></span>
+        </div>
+        <br/><br/>
+        <div style="text-align: center">
+            <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="width:1046px;">
+                <thead>
+                <tr class="mdl-data-table-tr">
+                    <th colspan="4">
+                        <h5>
+                            作息时间
+                            <md-tooltip>就是你的上班/下班时间（都给你默认好了）</md-tooltip>
+                        </h5>
+                    </th>
+                </tr>
+                <tr class="mdl-data-table-tr">
+                    <th>上午上班
+                        <md-tooltip>天天迟到，知道你自己上午几点上班吗</md-tooltip>
+                    </th>
+                    <th>上午下班
+                        <md-tooltip>中午几点吃饭总该知道了吧</md-tooltip>
+                    </th>
+                    <th>下午上班
+                        <md-tooltip>中午吃多了？一觉睡到几点心里没点数吗</md-tooltip>
+                    </th>
+                    <th>下午下班
+                        <md-tooltip>这个点该又饿又困了吧</md-tooltip>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <md-time-picker ng-disabled="!determinateDis" ng-model="amStartTime" no-meridiem
+                                        title="AM 上班时间"></md-time-picker>
+                    </td>
+                    <td>
+                        <md-time-picker ng-disabled="!determinateDis" ng-model="amEndTime" no-meridiem
+                                        title="AM 下班时间"></md-time-picker>
+                    </td>
+                    <td>
+                        <md-time-picker ng-disabled="!determinateDis" ng-model="pmStartTime" no-meridiem
+                                        title="PM 上班时间"></md-time-picker>
+                    </td>
+                    <td>
+                        <md-time-picker ng-disabled="!determinateDis" ng-model="pmEndTime" no-meridiem
+                                        title="PM 下班时间"></md-time-picker>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <br><br>
+        <div style="text-align: center;width:1046px;">
+            <md-progress-linear md-mode="indeterminate" ng-disabled="determinateDis"
+                                ng-if="showProgressLinear"></md-progress-linear>
+            <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+                <thead>
+                <tr class="mdl-data-table-tr">
+                    <th colspan="6">
+                        <h5>工作内容
+                            <md-tooltip>工作八小时，聊天两小时，斗图六小时</md-tooltip>
+                        </h5>
+                    </th>
+                </tr>
+                <tr class="mdl-data-table-tr">
+                    <th>序号
+                        <md-tooltip>怕你不识数，加个序号</md-tooltip>
+                    </th>
+                    <th>开始日期
+                        <md-tooltip>你想从几号开始写</md-tooltip>
+                    </th>
+                    <th>结束日期
+                        <md-tooltip>写到几号自己心里有点数吧</md-tooltip>
+                    </th>
+                    <th>工作内容描述
+                        <md-tooltip>这几天都干了啥</md-tooltip>
+                    </th>
+                    <th>跳过双休日
+                        <md-tooltip>要不要跳过双休日</md-tooltip>
+                    </th>
+                    <th>
+                        <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--green"
+                                ng-click="entry.addRow()"
+                                ng-disabled="!determinateDis" ng-show="entry.showAddButton">
+                            新增
+                            <md-tooltip>不写日报一时爽，一直不写一直爽</md-tooltip>
+                        </button>
+                    </th>
+                </tr>
+                </thead>
+                <tbody ng-repeat="dataInfo in entry.workData track by $index">
+                <tr>
+                    <td><span ng-bind="dataInfo.index = $index+1"></span></td>
+                    <td>
+                        <md-datepicker md-max-date="entry.maxDate" md-min-date="entry.minDate" md-open-on-focus
+                                       md-placeholder="Start Date"
+                                       ng-change="startDateChg(dataInfo,$event)" ng-disabled="!determinateDis"
+                                       ng-model="dataInfo.startDate"></md-datepicker>
+                    </td>
+                    <td>
+                        <md-datepicker md-max-date="entry.maxDate" md-min-date="entry.minDate" md-open-on-focus
+                                       md-placeholder="End Date"
+                                       ng-change="endDateChg(dataInfo,$event)" ng-disabled="!determinateDis"
+                                       ng-model="dataInfo.endDate"></md-datepicker>
+                    </td>
+                    <td>
+                        <div class="mdl-textfield mdl-js-textfield">
+                        <textarea class="mdl-textfield__input" id="content{{$index}}" ng-disabled="!determinateDis"
+                                  rows="1" type="text"
+                                  ng-model="dataInfo.content"></textarea>
+                            <label class="mdl-textfield__label" for="content{{$index}}"></label>
+                        </div>
+                    </td>
+                    <td>
+                        <md-switch class="md-primary" ng-disabled="!determinateDis"
+                                   ng-model="dataInfo.skipWeekend"></md-switch>
+                    </td>
+                    <td>
+                        <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--accent"
+                                ng-click="entry.deleteRow($index, entry.showDeleteButton)"
+                                ng-disabled="!determinateDis">
+                            <span ng-bind="entry.buttonText"></span>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <md-button class="md-fab md-primary" ng-click="submit($event)" ng-disabled="!determinateDis"
+                       style="position: relative; left: 50%; top: 35px;">
+                <md-tooltip md-direction="top">你觉得这个按钮，有没有可能是提交呢</md-tooltip>
+                <md-icon>send</md-icon>
+            </md-button>
+        </div>
+
+    </div>
+</div>

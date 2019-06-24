@@ -1,0 +1,38 @@
+<div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--middle" style="min-width:942px" ng-class="pageStyle.pageOffset">
+        <md-content class="md-content-text">
+            <md-input-container class="md-block">
+                <label>sql脚本</label>
+                <textarea required ng-model="sqlConsoleDto.sql" rows="5"
+                          md-select-on-focus></textarea>
+            </md-input-container>
+            <md-button style="left: 780px" class="md-raised md-primary" ng-click="submit($event)">执 行</md-button>
+            <md-input-container class="md-block">
+                <label>执行结果</label>
+                <textarea style="font-size: 14px;" md-colors="{color: '{{resultColor}}'}" disabled required
+                          ng-model="resultMessage" rows="3"
+                          md-select-on-focus></textarea>
+            </md-input-container>
+            <div style="overflow: auto;width: 100%;height: 500px;" ng-if="resultDate.executeFlag === 'query'">
+                <table class="mdl-data-table mdl-js-data-table">
+                    <thead class="textAlignLeft">
+                    <tr>
+                        <th>行号</th>
+                        <th ng-repeat="columnName in resultDate.columnNames track by $index"><span
+                                ng-bind="columnName"></span></th>
+                    </tr>
+                    </thead>
+                    <tbody ng-repeat="row in resultDate.rowDate track by $index">
+                    <tr>
+                        <td style="text-align: left"><span ng-bind="$index+1"></span></td>
+                        <td style="text-align: left" ng-repeat="columnName in resultDate.columnNames track by $index">
+                            <span ng-bind="row[columnName]"></span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </md-content>
+    </div>
+</div>

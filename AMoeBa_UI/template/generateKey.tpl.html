@@ -1,0 +1,28 @@
+<div class="mdl-grid">
+    <div class="mdl-cell mdl-shadow--2dp  mdl-cell--middle" style="min-width:942px"
+         ng-class="pageStyle.pageOffset">
+        <h4 style="text-align:center">密钥工具</h4>
+        <div class="mdl-card__supporting-text">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label center-position">
+                <input ng-model="generateKey.userName" class="mdl-textfield__input" type="text" id="userName"
+                       maxlength="10">
+                <label class="mdl-textfield__label" for="userName">用户名</label>
+            </div>
+            <br>
+            <div class="mdl-textfield mdl-js-textfield center-position-textArea center-position">
+                <label style="color: rgb(63,81,181);font-size: 12px;">密钥</label>
+                <textarea ng-model="generateKey.key" style="resize:none"
+                          class="mdl-textfield__input" type="text" rows="3"
+                          id="key"></textarea>
+                <!--<label class="mdl-textfield__label" for="center111">密钥</label>-->
+            </div>
+            <br>
+            <button ng-click="generate($event)" class="mdl-button mdl-js-button mdl-js-ripple-effect location-layout">
+                生成密钥
+            </button>
+            <button ng-click="verify($event)" class="mdl-button mdl-js-button mdl-js-ripple-effect location-layout">
+                验证密钥
+            </button>
+        </div>
+    </div>
+</div>
