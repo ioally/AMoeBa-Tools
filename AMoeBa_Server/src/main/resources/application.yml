@@ -20,11 +20,11 @@ spring:
 logging:
   level:
     root: info
-  path: ～/logfiles # 日志储路径
+  path: ~/logfiles # 日志储路径
   maxHistory: 7 # 切分日志保留天数
 
 amoeba:
-  url: http://219.142.22.66:9777/amoeba # amoeba地址
+  url: http://39.105.176.106/amoeba # amoeba地址
   sessionSize: 1 # session池大小
   sessionTimeout: 5 # session超时时间（分钟）
   isVerifyKey: false # 是否需要验证密钥
@@ -38,4 +38,4 @@ amoeba:
 
 sqliteDataBsae:
   driver-class-name: org.sqlite.JDBC
-  dataFilePath: ～/sqlite/data.db # 数据库文件路径
+  dataFilePath: data/data.db # 数据库文件路径，默认resources目录下的数据库文件
