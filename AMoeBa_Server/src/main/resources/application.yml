@@ -9,9 +9,12 @@ spring:
     default-encoding: utf-8
     username: xxxxxxxxxx@qq.com
     password: xxxxxxxxxxx
+    port: 465
     properties:
       mail:
         smtp:
+          ssl:
+            enable: true
           auth: true
           starttls:
             enable: true
