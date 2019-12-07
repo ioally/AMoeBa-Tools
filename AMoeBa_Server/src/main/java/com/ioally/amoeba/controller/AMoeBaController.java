@@ -30,12 +30,6 @@ public class AMoeBaController implements AMoeBaApi {
     @Autowired
     private AMoeBaService aMoeBaService;
 
-    @Autowired
-    private SecurityService securityService;
-
-    @Value("${amoeba.isVerifyKey}")
-    private boolean isVerifyKey;
-
     /**
      * 登录
      *
@@ -47,11 +41,7 @@ public class AMoeBaController implements AMoeBaApi {
         if (loginDto == null) {
             throw new UserPermissionException("登陆信息不能为空！");
         }
-        // 系统若开启验证密钥，则先验证密钥信息
-        if (isVerifyKey) {
-            securityService.verifyKey(loginDto.getUserName(), loginDto.getKey());
-        }
-        return ResponseDto.newInstance(aMoeBaService.login(loginDto.getUserName(), loginDto.getPassWord()));
+        return ResponseDto.newInstance(aMoeBaService.login(loginDto));
     }
 
     /**

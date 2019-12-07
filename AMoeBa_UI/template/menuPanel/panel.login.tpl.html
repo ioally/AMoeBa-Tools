@@ -2,24 +2,27 @@
     <div class="menu-content">
         <div class="mdl-card__supporting-text">
             <div style="margin: 10%;text-align: center;">
-                <h5>请输入登录信息</h5>
+                <h5>欢迎登录</h5>
                 <md-divider></md-divider>
             </div>
             <md-input-container class="md-block" flex-gt-sm>
                 <label>用户名</label>
-                <input ng-model="ctrl.user.userName">
+                <input ng-model="ctrl.user.userName" ng-blur="ctrl.queryKey()" ng-change="ctrl.cleanCache()">
             </md-input-container>
             <md-input-container class="md-block" flex-gt-sm>
                 <label>密码</label>
                 <input type="password" ng-model="ctrl.user.passWord">
             </md-input-container>
-            <md-input-container class="md-block" flex-gt-sm ng-if="config.verifyKey">
+            <md-input-container class="md-block"  flex-gt-sm ng-if="ctrl.config.verifyKey">
                 <label>密钥</label>
-                <input ng-model="ctrl.user.key">
+                <input ng-model="ctrl.user.key" ng-disabled="!ctrl.config.isExistKey">
             </md-input-container>
             <br>
+            <div class="mdl-login-margin-left28" ng-if="ctrl.config.verifyKey && ctrl.config.switchFlagKey">
+                <md-button ng-click="ctrl.generateKey()">获取密钥</md-button>
+            </div>
             <div class="mdl-login-margin-left">
-                <md-button ng-click="ctrl.login()">登录吧，骚年！</md-button>
+                <md-button ng-click="ctrl.login()">登录吧，骚年</md-button>
             </div>
         </div>
     </div>

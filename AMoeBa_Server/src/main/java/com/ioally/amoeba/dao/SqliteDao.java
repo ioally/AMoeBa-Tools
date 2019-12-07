@@ -1,10 +1,8 @@
 package com.ioally.amoeba.dao;
 
-import com.ioally.amoeba.dto.FeedBackDto;
-import com.ioally.amoeba.dto.LoginDto;
-import com.ioally.amoeba.dto.MenuInfoDto;
-import com.ioally.amoeba.dto.QueryResultDto;
+import com.ioally.amoeba.dto.*;
 import com.ioally.amoeba.utils.jdbc.SqliteJdbc;
+import com.ioally.amoeba.utils.other.DateUtil;
 import com.ioally.amoeba.utils.other.Str;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,9 +111,18 @@ public class SqliteDao {
         String userName = loginDto.getUserName();
         String passWord = loginDto.getPassWord();
         String userEmployeeName = loginDto.getUserEmployeeName();
-        String key = StringUtils.isEmpty(loginDto.getKey()) ? "" : loginDto.getKey();
-        String sql = "insert into userInfo (id, userName, passWord, validFlag, role, key) " +
-                "values ('" + userName + "', '" + userEmployeeName.split("-")[0] + "', '" + passWord + "', '1', '" + role + "', '" + key + "')";
+        String sql = "insert into userInfo (id, userName, passWord, validFlag, role, login, lastLogin) " +
+                "values ('" + userName + "', '" + userEmployeeName.split("-")[0] + "', '" + passWord + "', '1', '" + role + "', '1', '" + DateUtil.getNowDate() + "')";
+        return sqliteJdbc.executeUpdate(sql);
+    }
+
+    /**
+     * 更新指定用户的最后登录时间
+     *
+     * @param userName 用户名
+     */
+    public int updateLastLogin(String userName) throws SQLException {
+        String sql = "update userInfo set lastLogin = '" + DateUtil.getNowDate() + "', login = (select login + 1 from userInfo where id='" + userName + "') where id='" + userName + "'";
         return sqliteJdbc.executeUpdate(sql);
     }
 
@@ -126,18 +133,31 @@ public class SqliteDao {
      * @return
      */
     public LoginDto queryUserByPK(String userName) throws SQLException {
-        String sql = "select id, userName, key from userInfo where id='" + userName + "'";
+        String sql = "select id, userName from userInfo where id='" + userName + "'";
+        return getLoginDto(sql);
+    }
+
+    /**
+     * 验证管理员用户信息
+     *
+     * @param userName 用户姓名（工号）
+     * @return
+     */
+    public LoginDto verifyAdminUser(String userName, String password) throws SQLException {
+        String sql = "select id, userName from userInfo where id='" + userName + "' and password = '" + password + "' and role = '0'";
+        return getLoginDto(sql);
+    }
+
+    private LoginDto getLoginDto(String sql) throws SQLException {
         Connection connection = sqliteJdbc.getConnection();
         try {
             ResultSet resultSet = sqliteJdbc.executeQuery(connection, sql);
             if (resultSet.next()) {
                 String id = resultSet.getString("id");
                 String userCName = resultSet.getString("userName");
-                String key = resultSet.getString("key");
                 LoginDto loginDto = new LoginDto();
                 loginDto.setUserName(id);
                 loginDto.setUserEmployeeName(userCName + "-" + id);
-                loginDto.setKey(key);
                 return loginDto;
             }
         } finally {
@@ -239,4 +259,56 @@ public class SqliteDao {
         }
         return queryResultDto;
     }
+
+    /**
+     * 根据用户名查询用户的密钥信息
+     *
+     * @param userId 用户id
+     * @return
+     */
+    public KeyInfoDto queryKeyByPK(String userId) throws SQLException {
+        String sql = "select key, userId, privateKey from keyInfo where userId='" + userId + "'";
+        Connection connection = sqliteJdbc.getConnection();
+        KeyInfoDto keyInfoDto = null;
+        try {
+            ResultSet resultSet = sqliteJdbc.executeQuery(connection, sql);
+            if (resultSet.next()) {
+                keyInfoDto = new KeyInfoDto();
+                keyInfoDto.setUserId(resultSet.getString("userId"));
+                keyInfoDto.setKey(resultSet.getString("key"));
+                keyInfoDto.setPrivateKey(resultSet.getString("privateKey"));
+            }
+        } finally {
+            connection.close();
+        }
+        return keyInfoDto;
+    }
+
+    /**
+     * 新增一条密钥数据
+     *
+     * @param keyInfoDto 密钥信息
+     * @return 影响行数
+     */
+    public int addKeyInfo(KeyInfoDto keyInfoDto) throws SQLException {
+        String key = keyInfoDto.getKey();
+        String userId = keyInfoDto.getUserId();
+        String privateKey = keyInfoDto.getPrivateKey();
+        String sql = "insert into keyInfo (userId, key, privateKey) " +
+                "values ('" + userId + "', '" + key + "', '" + privateKey + "')";
+        return sqliteJdbc.executeUpdate(sql);
+    }
+
+    /**
+     * 删除一条密钥数据
+     *
+     * @param userId 用户id
+     * @return 影响行数
+     */
+    public int deleteKeyInfo(String userId) throws SQLException {
+        String sql = "delete from keyInfo where userId = '" + userId + "'";
+        return sqliteJdbc.executeUpdate(sql);
+    }
+
+
 }

@@ -25,7 +25,7 @@ public class SecurityController implements SecurityApi {
      */
     @Override
     public ResponseDto generateKey(@RequestBody Map<String, String> param) throws Exception {
-        return ResponseDto.newInstance(securityService.generateKey(param.get("userName"), param.get("email")));
+        return ResponseDto.newInstance(securityService.generateKey(param.get("userName"), param.get("email"),false));
     }
 
     /**
@@ -38,4 +38,27 @@ public class SecurityController implements SecurityApi {
     public ResponseDto verifyKey(@RequestBody Map<String, String> param) throws Exception {
         return ResponseDto.newInstance(securityService.verifyKey(param.get("userName"), param.get("key")));
     }
+
+    /**
+     * 根据用户名获取用户的密钥
+     *
+     * @param param 用户的userName
+     * @return 密钥串
+     */
+    @Override
+    public ResponseDto getKeyByUserName(@RequestBody Map<String, String> param) throws Exception {
+        return ResponseDto.newInstance(securityService.getKeyByUserName(param.get("userName")));
+    }
+
+    /**
+     * 生成新的密钥，忽略已经存在的密钥
+     *
+     * @param param 生成密钥需要的数据
+     * @return 密钥串
+     */
+    @Override
+    public ResponseDto generateAndIgnoreExistKey(@RequestBody Map<String, String> param) throws Exception {
+        return ResponseDto.newInstance(securityService.generateKey(param.get("userName"), param.get("email"),true));
+    }
+
 }

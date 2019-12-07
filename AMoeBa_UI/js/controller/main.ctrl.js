@@ -9,6 +9,13 @@ define([
         function ($scope, $rootScope, $state, $$finder, $timeout, layer, $mdPanel) {
             $rootScope.isLogin = false;
 
+            // 登录时填写的用户信息缓存起来，防止失去焦点时需要重新填写，登录成功后会清空该信息
+            $scope.loginInfoCache = {
+                userName: null,
+                passWord: null,
+                key: null
+            };
+
             /**
              * 回到主页
              */
@@ -217,16 +224,27 @@ define([
                     id: 'content_loginPanel',
                     attachTo: angular.element(document.body),
                     controller: function (mdPanelRef) {
-                        this.user = {
+                        this.user = $scope.loginInfoCache || {
                             userName: null,
                             passWord: null,
                             key: null
                         };
+                        $rootScope.config.isExistKey = !this.user.key;
+                        this.config = $rootScope.config;
 
                         this.login = function () {
+                            if ($rootScope.config.verifyKey && !this.user.key) {
+                                layer.alert("如果登录页面没有生成密钥的按钮，说明该时段不允许自助生成密钥<br/><br/>请发送您的AMoeBa工号和姓名至邮箱：25463286@qq.com<br/><br/>或联系本系统管理员获取。我将尽快回复您！");
+                                return;
+                            }
                             $$finder.post("login", this.user, {
                                 success: function (data) {
                                     if (data.statusCode == 200) {
+                                        $scope.loginInfoCache = {
+                                            userName: null,
+                                            passWord: null,
+                                            key: null
+                                        };
                                         $rootScope.userInfo = data.content;
                                         layer.alert("登录成功，欢迎：" + $rootScope.userInfo.userEmployeeName);
                                         getMenu();
@@ -236,7 +254,7 @@ define([
                                         $rootScope.isLogin = false;
                                         $rootScope.restMenu();
                                         $rootScope.userInfo = {};
-                                        layer.alert(data.message)
+                                        layer.alert(data.message);
                                         $rootScope.goHome();
                                     }
                                 },
@@ -248,6 +266,52 @@ define([
 
                         this.closeMenu = function () {
                             mdPanelRef && mdPanelRef.close();
+                        };
+
+                        this.generateKey = function () {
+                            if (!this.user.userName) {
+                                layer.alert("用户名不能为空！", null, $event);
+                                return;
+                            }
+                            $rootScope.config.isExistKey = !this.user.key;
+                            if (!this.user.key) {
+                                $$finder.post("generateKey", this.user, {
+                                    success: function (data) {
+                                        if (data.statusCode == 200) {
+                                            $scope.loginInfoCache.key = data.content;
+                                            $rootScope.config.isExistKey = !$scope.loginInfoCache.key;
+                                        } else {
+                                            layer.alert("生成密钥失败：" + data.message, null);
+                                        }
+                                    },
+                                    error: function (e) {
+                                        console.error(e);
+                                    }
+                                })
+                            }
+                        };
+
+                        this.queryKey = function () {
+                            $rootScope.config.isExistKey = !this.user.key;
+                            if (this.config.verifyKey && !this.user.key) {
+                                $$finder.post("getKeyByUserName", {userName: this.user.userName}, {
+                                    success: function (data) {
+                                        if (data.statusCode == 200) {
+                                            $scope.loginInfoCache.key = data.content;
+                                            $rootScope.config.isExistKey = !$scope.loginInfoCache.key;
+                                        }
+                                    },
+                                    error: function (e) {
+                                        console.error(e);
+                                    }
+                                })
+                            }
+                        };
+
+                        this.cleanCache = function () {
+                            this.user.passWord = null;
+                            this.user.key = null;
+                            $rootScope.config.isExistKey = false;
                         };
                     },
                     controllerAs: 'ctrl',

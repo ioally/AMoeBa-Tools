@@ -10,7 +10,9 @@ define({
     // 后端服务的请求地址（格式为 名称：地址 ），新增配置请添加该服务的功能描述注释
     backend: {
         generateKey: "/security/generateKey", // 生成密钥
+        generateAndIgnoreExistKey: "/security/generateAndIgnoreExistKey", // 生成密钥
         verifyKey: "/security/verifyKey", // 密钥验证
+        getKeyByUserName: "/security/getKeyByUserName", // 根据用户名获取密钥
         getMenu: "/menu/getMenu",// 查询菜单
         login: "/login",// 登录
         logout: "/logout",// 登出

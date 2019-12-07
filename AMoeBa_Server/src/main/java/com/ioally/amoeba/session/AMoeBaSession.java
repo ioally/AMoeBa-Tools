@@ -157,6 +157,17 @@ public class AMoeBaSession {
     }
 
     /**
+     *
+     *
+     */
+    public void adminLogin(String userName) {
+        this.isLogin = true;
+        this.userEmployeeId = "AMoeBa Tools Administrator";
+        this.userEmployeeName = "系统管理员-"+userName;
+    }
+
+
+    /**
      * 查询当年所有的日志
      *
      * @return AMoeBaLogDtos

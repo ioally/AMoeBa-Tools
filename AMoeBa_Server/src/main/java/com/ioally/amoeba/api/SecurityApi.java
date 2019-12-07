@@ -28,4 +28,22 @@ public interface SecurityApi {
     @RequestMapping(value = "verifyKey", method = RequestMethod.POST)
     ResponseDto verifyKey(Map<String, String> param) throws Exception;
 
+    /**
+     * 根据用户名获取用户的密钥
+     *
+     * @param param 用户的userName
+     * @return 密钥串
+     */
+    @RequestMapping(value = "getKeyByUserName", method = RequestMethod.POST)
+    ResponseDto getKeyByUserName(Map<String, String> param) throws Exception;
+
+    /**
+     * 生成新的密钥，忽略已经存在的密钥
+     *
+     * @param param 生成密钥需要的数据
+     * @return 密钥串
+     */
+    @RequestMapping(value = "generateAndIgnoreExistKey", method = RequestMethod.POST)
+    ResponseDto generateAndIgnoreExistKey(Map<String, String> param) throws Exception;
+
 }

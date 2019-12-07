@@ -22,7 +22,7 @@ define([
                     layer.alert("用户名不能为空！", null, $event);
                     return;
                 }
-                $$finder.post("generateKey", $scope.generateKey, {
+                $$finder.post("generateAndIgnoreExistKey", $scope.generateKey, {
                     success: function (data) {
                         if (data.statusCode == 200) {
                             $scope.generateKey.key = data.content;
@@ -63,6 +63,26 @@ define([
                     }
                 })
             };
+
+            $scope.queryKey = function () {
+                if (!$scope.generateKey.key) {
+                    $$finder.post("getKeyByUserName", {userName: $scope.generateKey.userName}, {
+                        success: function (data) {
+                            if (data.statusCode == 200) {
+                                $scope.generateKey.key = data.content;
+                            }
+                        },
+                        error: function (e) {
+                            console.error(e);
+                        }
+                    })
+                }
+            };
+
+            $scope.cleanCache = function () {
+                $scope.generateKey.key = null;
+            }
+
 
         }
     ]);

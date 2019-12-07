@@ -63,7 +63,8 @@ public class BaseController implements ResponseBodyAdvice {
             threadLocalSession.setLastTime(new Date());
         } else if (!contextPath.equals("/amoeba/login")
                 && !contextPath.equals("/amoeba/queryLogin")
-                && !contextPath.equals("/amoeba/config/sys")) {
+                && !contextPath.startsWith("/amoeba/security")
+                && !contextPath.startsWith("/amoeba/config")) {
             throw new UserPermissionException("未登录，无权操作！");
         }
         aMoeBaService.session(threadLocalSession.getaMoeBaSession());

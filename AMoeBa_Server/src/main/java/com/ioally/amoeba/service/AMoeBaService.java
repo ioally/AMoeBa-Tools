@@ -24,11 +24,10 @@ public interface AMoeBaService {
     /**
      * 登录
      *
-     * @param userName 用户名
-     * @param passWord 密码
+     * @param loginDto 登录的用户信息
      * @return 登陆成功-true
      */
-    LoginDto login(String userName, String passWord) throws Exception;
+    LoginDto login(LoginDto loginDto) throws Exception;
 
     /**
      * 查询是否已经登录

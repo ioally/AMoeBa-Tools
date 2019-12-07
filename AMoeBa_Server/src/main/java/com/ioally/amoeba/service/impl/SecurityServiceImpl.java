@@ -1,5 +1,9 @@
 package com.ioally.amoeba.service.impl;
 
+import com.ioally.amoeba.dao.SqliteDao;
+import com.ioally.amoeba.dto.BaseRequestDto;
+import com.ioally.amoeba.dto.KeyInfoDto;
+import com.ioally.amoeba.dto.LoginDto;
 import com.ioally.amoeba.service.MailService;
 import com.ioally.amoeba.service.SecurityService;
 import com.ioally.amoeba.tasks.SimpleEmailThread;
@@ -13,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class SecurityServiceImpl implements SecurityService {
@@ -42,6 +47,9 @@ public class SecurityServiceImpl implements SecurityService {
     @Autowired
     private MailService mailService;
 
+    @Autowired
+    private SqliteDao sqliteDao;
+
     /**
      * 生成新的密钥(默认有效期)
      *
@@ -52,51 +60,66 @@ public class SecurityServiceImpl implements SecurityService {
         if (StringUtils.isEmpty(userName)) {
             throw new RuntimeException("用户id不能为空！");
         }
-        if (switchFlag) {
-            Date nowDate = new Date();
-            switch (dateStrategy) {
-                case DATE_STRATEGY_BEGIN:
-                    break;
-                case DATE_STRATEGY_CUTOFF:
-                    nowDate = DateUtil.calculateDate(DateUtil.DAY_OF_YEAR, nowDate, validTime);
-                    break;
-                default:
-                    throw new RuntimeException("密钥时间戳策略配置有误无法生成密钥！");
-            }
-            String encodeByAESToBase64 = null;
-            try {
-                encodeByAESToBase64 = SecurityUtil.encodeByAESToBase64(userName, nowDate, aesKey);
-            } catch (Exception e) {
-                LOGGER.error("密钥生成失败！", e);
-            }
-            for (int i = 0; i < reTry; i++) {
-                try {
-                    this.verifyKey(userName, encodeByAESToBase64);
-                    break;
-                } catch (Exception e) {
-                    LOGGER.error("[{}]密钥生成成功，但验证未通过，重新生成！", encodeByAESToBase64);
-                    encodeByAESToBase64 = generateKey(userName);
-                }
-            }
-            if (StringUtils.isNotEmpty(encodeByAESToBase64)) {
-                LOGGER.info("用户{},成功生成密钥{}", userName, encodeByAESToBase64);
-            }
-            return encodeByAESToBase64;
-        } else {
-            throw new RuntimeException("系统已关闭密钥生成功能，暂无法生成密钥！");
+        Date nowDate = new Date();
+        switch (dateStrategy) {
+            case DATE_STRATEGY_BEGIN:
+                break;
+            case DATE_STRATEGY_CUTOFF:
+                nowDate = DateUtil.calculateDate(DateUtil.DAY_OF_YEAR, nowDate, validTime);
+                break;
+            default:
+                throw new RuntimeException("密钥时间戳策略配置有误无法生成密钥！");
         }
+        String encodeByAESToBase64 = null;
+        try {
+            encodeByAESToBase64 = SecurityUtil.encodeByAESToBase64(userName, nowDate, aesKey);
+        } catch (Exception e) {
+            LOGGER.error("密钥生成失败！", e);
+        }
+        for (int i = 0; i < reTry; i++) {
+            try {
+                this.verifyKey(userName, encodeByAESToBase64);
+                break;
+            } catch (Exception e) {
+                LOGGER.error("[{}]密钥生成成功，但验证未通过，重新生成！", encodeByAESToBase64);
+                encodeByAESToBase64 = generateKey(userName);
+            }
+        }
+        // 密钥生成后存到数据库，下次则不再生成密钥直接从数据库取
+        if (StringUtils.isNotEmpty(encodeByAESToBase64)) {
+            KeyInfoDto keyInfoDto = new KeyInfoDto();
+            keyInfoDto.setUserId(userName);
+            keyInfoDto.setKey(encodeByAESToBase64);
+            keyInfoDto.setPrivateKey(aesKey);
+            sqliteDao.addKeyInfo(keyInfoDto);
+            LOGGER.info("用户{},成功生成密钥{}", userName, encodeByAESToBase64);
+        }
+        return encodeByAESToBase64;
     }
 
     /**
-     * 生成一个密钥并且发送邮件
+     * 生成新的密钥(默认有效期)
      *
-     * @param userName 用户名
-     * @param toEmail  邮箱地址
-     * @throws Exception
+     * @param userName         用户id
+     * @param toEmail          发送的邮箱
+     * @param isIgnoreExistKey 是否忽略已经存在的密钥
+     * @return 密钥串
      */
     @Override
-    public String generateKey(String userName, String toEmail) throws Exception {
-        String key = this.generateKey(userName);
+    public String generateKey(String userName, String toEmail, boolean isIgnoreExistKey) throws Exception {
+        if (StringUtils.isEmpty(userName)) {
+            throw new RuntimeException("用户id不能为空！");
+        }
+        String key;
+        if (isIgnoreExistKey) {
+            sqliteDao.deleteKeyInfo(userName);
+            key = this.generateKey(userName);
+        } else {
+            key = Optional.ofNullable(sqliteDao.queryKeyByPK(userName)).map(KeyInfoDto::getKey).orElse("");
+            if (StringUtils.isEmpty(key)) {
+                key = this.generateKey(userName);
+            }
+        }
         if (StringUtils.isNotEmpty(toEmail) && sendEmail) {
             SimpleEmailThread
                     .instance(mailService, userName, key, verifyKey(userName, key))
@@ -123,7 +146,7 @@ public class SecurityServiceImpl implements SecurityService {
         }
         Date date;
         try {
-            date = SecurityUtil.decodeBase64ByAES(userName, key, aesKey);
+            date = SecurityUtil.decodeBase64ByAES(userName, key, Optional.ofNullable(sqliteDao.queryKeyByPK(userName)).map(KeyInfoDto::getPrivateKey).orElse(aesKey));
         } catch (Exception e) {
             throw new Exception("密钥无效！");
         }
@@ -146,5 +169,16 @@ public class SecurityServiceImpl implements SecurityService {
             throw new Exception("密钥已于[" + resultDateStr + "]过期！");
         }
         return resultDateStr;
+    }
+
+    /**
+     * 根据用户名获取用户的密钥
+     *
+     * @param userName 用户的userName
+     * @return 密钥串
+     */
+    @Override
+    public String getKeyByUserName(String userName) throws Exception {
+        return Optional.ofNullable(sqliteDao.queryKeyByPK(userName)).map(KeyInfoDto::getKey).orElse("");
     }
 }

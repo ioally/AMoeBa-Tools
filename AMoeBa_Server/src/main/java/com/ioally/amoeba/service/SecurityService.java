@@ -13,22 +13,14 @@ public interface SecurityService {
     String DATE_STRATEGY_BEGIN = "begin";
 
     /**
-     * 开-可以生成密钥
-     */
-    boolean SWITCH_ON = true;
-
-    /**
-     * off-关闭生成密钥
-     */
-    boolean SWITCH_OFF = false;
-
-    /**
      * 生成新的密钥(默认有效期)
      *
-     * @param userName 用户id
+     * @param userName         用户id
+     * @param toEmail          发送的邮箱
+     * @param isIgnoreExistKey 是否忽略已经存在的密钥
      * @return 密钥串
      */
-    String generateKey(String userName, String toEmail) throws Exception;
+    String generateKey(String userName, String toEmail, boolean isIgnoreExistKey) throws Exception;
 
     /**
      * 验证密钥是否可用
@@ -38,4 +30,12 @@ public interface SecurityService {
      * @return 验证结果
      */
     String verifyKey(String userName, String key) throws Exception;
+
+    /**
+     * 根据用户名获取用户的密钥
+     *
+     * @param userName 用户的userName
+     * @return 密钥串
+     */
+    String getKeyByUserName(String userName) throws Exception;
 }

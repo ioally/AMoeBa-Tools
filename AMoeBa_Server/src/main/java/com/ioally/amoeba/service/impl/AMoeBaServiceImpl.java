@@ -3,6 +3,7 @@ package com.ioally.amoeba.service.impl;
 import com.ioally.amoeba.dao.SqliteDao;
 import com.ioally.amoeba.dto.*;
 import com.ioally.amoeba.service.AMoeBaService;
+import com.ioally.amoeba.service.SecurityService;
 import com.ioally.amoeba.session.AMoeBaSession;
 import com.ioally.amoeba.session.SessionManager;
 import com.ioally.amoeba.tasks.AMoeBaExecuteTask;
@@ -47,34 +48,52 @@ public class AMoeBaServiceImpl implements AMoeBaService {
 
     private ForkJoinPool forkJoinPool = new ForkJoinPool(20);
 
+    @Autowired
+    private SecurityService securityService;
+
+    @Value("${amoeba.isVerifyKey}")
+    private boolean isVerifyKey;
+
     /**
-     * 登陆操作
+     * 登录
      *
-     * @param userName 用户名
-     * @param passWord 密码
-     * @return 登录信息
+     * @param loginDto 登录的用户信息
+     * @return 登陆成功-true
      */
     @Override
-    public LoginDto login(String userName, String passWord) throws Exception {
-        if (StringUtils.isEmpty(userName)) {
+    public LoginDto login(LoginDto loginDto) throws Exception {
+        Optional<LoginDto> loginDtoOpt = Optional.ofNullable(loginDto);
+        loginDtoOpt.orElseThrow(() -> new RuntimeException("用户登录信息不允许为空!"));
+
+        if (StringUtils.isEmpty(loginDto.getUserName())) {
             throw new RuntimeException("用户名不能为空!");
         }
-        if (StringUtils.isEmpty(passWord)) {
+        if (StringUtils.isEmpty(loginDto.getPassWord())) {
             throw new RuntimeException("密码不允许为空!");
         }
 
-        if (aMoeBaSession.isLogin() && userName.equals(aMoeBaSession.getUserId()) && StringUtils.isNotEmpty(aMoeBaSession.getCookieStr())) {
+        if (aMoeBaSession.isLogin() && loginDto.getUserName().equals(aMoeBaSession.getUserId()) && StringUtils.isNotEmpty(aMoeBaSession.getCookieStr())) {
             throw new Exception("请不要重复登陆！");
         } else {
-            aMoeBaSession.login(userName, passWord);
+            LoginDto adminUser = sqliteDao.verifyAdminUser(loginDto.getUserName(), loginDto.getPassWord());
+            if (adminUser == null) {
+                // 系统若开启验证密钥，则先验证密钥信息
+                if (isVerifyKey) {
+                    securityService.verifyKey(loginDto.getUserName(), loginDto.getKey());
+                }
+                aMoeBaSession.login(loginDto.getUserName(), loginDto.getPassWord());
+            } else {
+                aMoeBaSession.adminLogin(loginDto.getUserName());
+                loginDto = adminUser;
+            }
         }
-        LoginDto loginDto = new LoginDto();
-        loginDto.setUserName(userName);
         loginDto.setPassWord(aMoeBaSession.getUserEmployeeId());
         loginDto.setUserEmployeeId(aMoeBaSession.getUserEmployeeId());
         loginDto.setUserEmployeeName(aMoeBaSession.getUserEmployeeName());
-        LoginDto userInfo = sqliteDao.queryUserByPK(userName);
-        if (userInfo == null) {
+        LoginDto userInfo = sqliteDao.queryUserByPK(loginDto.getUserName());
+        if (userInfo != null) {
+            sqliteDao.updateLastLogin(loginDto.getUserName());
+        } else {
             sqliteDao.addUser(loginDto, "1");
         }
         return loginDto;
@@ -141,12 +160,10 @@ public class AMoeBaServiceImpl implements AMoeBaService {
             while (endDateStr.compareTo(temp) >= 0) {
                 Date date = sdf.parse(temp);
                 if (!holidays.contains(temp) && (!skipWeekend || !DateUtil.isWeekend(date))) {
-                    LOGGER.info("{}开始组织{}日志数据", aMoeBaSession.getUserEmployeeName(), temp);
                     AMoeBaLogDto[] aMoeBaLogDto = getAMoeBaLogDto(batchExecuteDto, logInfoDto, temp);
                     aMoeBaLogDtos.add(aMoeBaLogDto[0]);
                     aMoeBaLogDtos.add(aMoeBaLogDto[1]);
-                } else {
-                    LOGGER.info("{}节假日或双休日跳过!", temp);
+                    LOGGER.info("{}：日志内容组装完毕，{}", temp, Arrays.toString(aMoeBaLogDto));
                 }
                 temp = sdf.format(DateUtil.calculateDate(DateUtil.DAY_OF_YEAR, sdf.parse(temp), 1));
             }

@@ -7,7 +7,7 @@ spring:
   mail:
     host: smtp.qq.com
     default-encoding: utf-8
-    username: xxxxxxxx@qq.com
+    username: xxxxxxxxxx@qq.com
     password: xxxxxxxxxxx
     properties:
       mail:
@@ -25,17 +25,17 @@ logging:
 
 amoeba:
   url: http://39.105.176.106/amoeba # amoeba地址
-  sessionSize: 1 # session池大小
+  sessionSize: 10 # session池大小
   sessionTimeout: 5 # session超时时间（分钟）
-  isVerifyKey: false # 是否需要验证密钥
+  isVerifyKey: true # 是否需要验证密钥
   multiThread: true # 是否开启多线程提交任务, 批量操作时会新创建线程执行任务
   security:
-    aesKey: xxxxxxxxxx # AES加密密钥
+    aesKey: XXXXXXXXXXXXX # AES加密密钥
     validTime: 180 # 密钥有效时间(天)
     dateStrategy: cutoff # 密钥时间戳策略(cutoff-截止日期，begin-开始日期)
-    switchFlag: true # 密钥生成开关 true-允许生成
+    switchFlag: false # 密钥生成开关 true-允许生成
     sendEmail: true # 密钥是否通过邮箱发送
 
 sqliteDataBsae:
   driver-class-name: org.sqlite.JDBC
-  dataFilePath: data/data.db # 数据库文件路径，默认resources目录下的数据库文件
+  dataFilePath: AMoeBa_Server/src/main/resources/data/data.db # 数据库文件路径，默认resources目录下的数据库文件

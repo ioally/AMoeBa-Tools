@@ -94,4 +94,13 @@ public final class DateUtil {
         return format.compareTo("12:00:00") < 0;
     }
 
+    /**
+     * 返回当前时间的字符串
+     *
+     * @return 当前日期
+     */
+    public static String getNowDate() {
+        return sdf_en.format(Calendar.getInstance().getTime());
+    }
+
 }

@@ -136,7 +136,8 @@ sqliteDataBsae.dataFilePath # 数据库文件路径，建议填写绝对路径�
 | passWord  | VARCHAR | N      | N    | 无   | 用户的AMoeBa系统唯一id，不是密码  |
 | vaildFlag | VARCHAR | N      | N    | 1   | 是否有效标志。1-有效；0-无效 |
 | role      | VARCHAR | N      | N    | 9   | 用户角色代码           |
-| key       | VARCHAR | Y      | N    | 无   | 系统生成的密钥串         |
+| login     | INTEGER | N      | N    | 1   | 用户的登录次数         |
+| lastLogin | VARCHAR | Y      | N    | 无  | 用户的最后一次登录时间         |
 
 > ##### 角色信息表(RoleInfo)
 
@@ -184,3 +185,11 @@ sqliteDataBsae.dataFilePath # 数据库文件路径，建议填写绝对路径�
 | createTime | VARCHAR | N      | N    | 无   | 反馈时间               |
 | email      | VARCHAR | N      | N    | 无   | 反馈人邮箱              |
 | isSendFlag | VARCHAR | N      | N    | 0   | 是否已经发送邮件。1-已发；0-未发 |
+
+> ##### 密钥信息表(KeyInfo)
+
+| 字段名        | 字段类型    | 是否可以为空 | 是否主键 | 默认值 | 字段注释               |
+| ---------- | ------- | ------ | ---- | --- | ------------------ |
+| userId     | VARCHAR | N      | Y    | 无   | 用户等登录id  |
+| key        | VARCHAR | N      | N    | ''   | 用户的对应密钥            |
+| privateKey | VARCHAR | N      | N    | 无   | 用来给密钥加密的私钥       |

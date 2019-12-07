@@ -5,8 +5,13 @@
         <div class="mdl-card__supporting-text">
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label center-position">
                 <input ng-model="generateKey.userName" class="mdl-textfield__input" type="text" id="userName"
-                       maxlength="10">
+                       maxlength="10" ng-blur="queryKey()" ng-change="cleanCache()">
                 <label class="mdl-textfield__label" for="userName">用户名</label>
+            </div>
+            <br>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label center-position">
+                <input ng-model="generateKey.email" class="mdl-textfield__input" type="text" id="email">
+                <label class="mdl-textfield__label" for="userName">用户邮箱</label>
             </div>
             <br>
             <div class="mdl-textfield mdl-js-textfield center-position-textArea center-position">
@@ -14,7 +19,6 @@
                 <textarea ng-model="generateKey.key" style="resize:none"
                           class="mdl-textfield__input" type="text" rows="3"
                           id="key"></textarea>
-                <!--<label class="mdl-textfield__label" for="center111">密钥</label>-->
             </div>
             <br>
             <button ng-click="generate($event)" class="mdl-button mdl-js-button mdl-js-ripple-effect location-layout">
