@@ -1,5 +1,7 @@
 # AMoeBa-Tools
 
+#### 此仓库封存，不再维护更新
+
 #### 一、项目结构
 
 - AMoeBa_Server (后端应用代码)
